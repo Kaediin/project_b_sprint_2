@@ -1,0 +1,41 @@
+#containerInfo{
+    flex-direction: column;
+    padding: 0 10% 0 10%;
+    color: white;
+    display: none;
+}
+#platforms {
+    display: flex;
+    background: #3f475a;
+    border-radius: 5px;
+    padding: 10px;
+    width: min-content;
+}
+
+.os_icon {
+    width: 30px;
+    padding: 0 10px 0 10px;
+    filter: invert(1);
+}
+
+#containerTop{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#containerLanguages, #containerDate p h3{
+    padding: 5px 0 5px 0;
+    margin: 5px 0 5px 0;
+}
+
+#containerLanguages, #containerAboutDescription, #containerDate{
+    background: #3f475a;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 20px 0 20px 0;
+}
+
+#containerAboutDescription{
+    padding-bottom: 20px;
+}

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Details</title>
+    <link href="{% static 'admin/css/details_style.css' %}" rel="stylesheet" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "{% url 'fetch_details' 12345 %}".replace(/12345/, '{{ appid }}')
+            }).done(function (data) {
+                if (data.success) {
+                    document.getElementById('containerInfo').style.display = 'flex'
+
+                    var game_data = data.details['{{ appid }}']['data']
+                    console.log(game_data)
+                    document.getElementById('name').innerHTML = game_data['name']
+                    {#document.getElementById('game_type').innerHTML = "Gametype: "+game_data['type']#}
+                    {#document.getElementById('required_age').innerHTML = game_data['required_age']#}
+                    document.getElementById('about_the_game').innerHTML = game_data['about_the_game']
+                    document.getElementById('short_description').innerHTML = game_data['short_description']
+                    document.getElementById('supported_languages').innerHTML = game_data['supported_languages']
+                    document.getElementById('release_date').innerHTML = "Release date: " + game_data['release_date']['date']
+                    document.getElementById('developers').innerHTML = game_data['developers']
+                    document.getElementById('publishers').innerHTML = game_data['publishers']
+                    document.getElementById('website').href = game_data['website']
+
+                    setPlatforms(game_data['platforms'])
+                    setWebsite(game_data['website'])
+                    setUpcoming(game_data['release_date'])
+                    validateAboutDescription(game_data['about_the_game'], game_data['short_description'])
+                } else {
+                    location.href = "{% url 'index' %}"
+                }
+            })
+        });
+
+        function validateAboutDescription(about, description) {
+            if (about === description) {
+                document.getElementById('short_description').style.display = 'none'
+            }
+        }
+
+        function setWebsite(website_data) {
+            if (website_data !== null) {
+                document.getElementById('website').innerHTML = website_data
+            }
+        }
+
+        function setUpcoming(upcoming_data) {
+            if (upcoming_data['coming_soon']) {
+                document.getElementById('release_date').innerHTML = "COMING SOON! - " + upcoming_data['date']
+            }
+        }
+
+        function setPlatforms(platforms) {
+            if (!platforms['windows']) {
+                document.getElementById('windowsDiv').style.display = "none"
+            }
+            if (!platforms['mac']) {
+                document.getElementById('macosDiv').style.display = "none"
+            }
+            if (!platforms['linux']) {
+                document.getElementById('linuxDiv').style.display = "none"
+            }
+        }
+
+    </script>
+</head>
+<body>
+{% include 'header.html' %}
+<div id="containerInfo">
+    <div id="containerTop">
+        <h1 id="name"></h1>
+        <div id="platforms">
+            <div id="windowsDiv">
+                <img id="windows" class="os_icon" src="{% static 'admin/img/windows.svg' %}" alt="windows">
+            </div>
+
+            <div id="macosDiv">
+                <img id="macos" class="os_icon" src="{% static 'admin/img/apple.svg' %}" alt="Macos">
+            </div>
+
+            <div id="linuxDiv">
+                <img id="linux" class="os_icon" src="{% static 'admin/img/linux.svg' %}" alt="Linus">
+            </div>
+        </div>
+    </div>
+
+    <div id="containerDate">
+        <p id="release_date"></p>
+        <p id="coming_soon"></p>
+    </div>
+    <div id="containerAboutDescription">
+        <h3>About:</h3>
+        {% autoescape off %}
+            <div id="about_the_game"></div>
+            <div id="short_description"></div>{% endautoescape %}
+    </div>
+
+    <div id="containerLanguages">
+        <h3>Supported languages:</h3>
+        <p id="supported_languages"></p>
+    </div>
+    <div id="developers"></div>
+    <div id="publishers"></div>
+    <a id="website" href=""></a>
+</div>
+</body>
+</html>

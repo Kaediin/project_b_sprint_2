@@ -1,0 +1,65 @@
+div#container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+}
+
+input[type=submit] {
+    background: none;
+    border: 1px solid white;
+    color: white;
+    width: 100%;
+    padding: 5px 20px 5px 20px;
+    cursor: pointer;
+}
+
+#headerTitle h1 {
+    color: white;
+}
+
+select {
+    width: 200px;
+    padding: 5px;
+}
+
+#containerPerItem {
+    display: none;
+    flex-direction: column;
+    border: 7px solid black;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 50px auto 50px auto;
+    width: 60%;
+    color: white;
+}
+
+#containerPerItem:hover {
+    cursor: pointer;
+    background: black;
+    transition: 0.8s;
+}
+
+#message {
+    color: red;
+    padding: 0;
+    margin: 2px 0 0 0;
+}
+
+#loadingPlaceholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+}
+
+#loadingPlaceholder {
+    margin: 0;
+    padding: 0;
+}
+
+#filter {
+    width: 30px;
+    padding: 0 10px 0 10px;
+    filter: invert(1);
+}

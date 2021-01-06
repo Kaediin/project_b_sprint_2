@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<link href="{% static 'admin/css/header_style.css' %}" rel="stylesheet" type="text/css">
+<body>
+<section id="header">
+    <div id="containerHeader">
+        <div id="img" onclick="location.href = '{% url 'index' %}'">
+            <img id="steam_logo" src="{% static 'admin/img/logo_steam.svg' %}" alt="Steam-Logo">
+        </div>
+    </div>
+</section>
+</body>
+</html>
