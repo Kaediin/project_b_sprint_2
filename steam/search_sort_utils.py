@@ -1,3 +1,5 @@
+from itertools import islice
+
 def merge_recursive(arr, key):
     if len(arr) > 1:
         # Divide
@@ -15,7 +17,7 @@ def merge_recursive(arr, key):
 
         # Combine
         while i < len(p) and j < len(r):
-            if p[i]['appid'] < r[j]['appid']:
+            if p[i][key] < r[j][key]:
                 arr[k] = p[i]
                 i += 1
             else:
@@ -34,16 +36,16 @@ def merge_recursive(arr, key):
     return arr
 
 # FIX THIS!
-def binary_recursive(arr, appid):
-    q = len(arr) // 2
-    selected = arr[q]['appid']
-    print(arr[q]['appid'])
-    if len(arr) == 1:
-        return True if int(selected) == int(appid) else False
-    elif int(selected) == int(appid):
-        return True
-    else:
-        if int(selected) < int(appid):
-            return binary_recursive((arr[q:]), appid)
-        else:
-            return binary_recursive((arr[:q]), appid)
+# def binary_recursive(arr, appid):
+#     q = len(arr) // 2
+#     selected = arr[q]['appid']
+#     print(arr[q]['appid'])
+#     if len(arr) == 1:
+#         return True if int(selected) == int(appid) else False
+#     elif int(selected) == int(appid):
+#         return True
+#     else:
+#         if int(selected) < int(appid):
+#             return binary_recursive((arr[q:]), appid)
+#         else:
+#             return binary_recursive((arr[:q]), appid)

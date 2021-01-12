@@ -7,18 +7,28 @@ from steam import steam_api, search_sort_utils, utils
 
 
 # Create your views here.
-def index(request, reverse=False):
+def index(request, reverse=False, key='appid'):
     return render(request, 'index.html', {
-        'reverse': reverse
+        'reverse': reverse,
+        'filter_key': key
     })
 
 
-def fetch_steam_data_ajax(request, reverse=False):
-    apps = steam_api.fetch_all_apps()
-    sorted_apps = search_sort_utils.merge_recursive(apps, key='appid')
+def fetch_steam_data_ajax(request, filter_key, reversed):
+    print(f'Key: {filter_key}')
+
+    apps = steam_api.fetch_all_apps_steamspy()
+
+    if filter_key not in steam_api.getKeys() :
+        print('Filterkey is none')
+        filter_key = 'appid'
+
+    sorted_apps = search_sort_utils.merge_recursive(apps, key=filter_key)
+    keys = steam_api.getKeys()
     context = {
         'apps': sorted_apps,
-        'reverse': reverse
+        'reverse': reversed,
+        'keys': keys
     }
 
     data = json.dumps(context)
@@ -33,28 +43,43 @@ def app_details(request, appid):
 
 def fetch_details_ajax(request, appid):
     details = steam_api.fetch_details(appid)
+    details_ss = steam_api.fetch_details_steamspy(appid)
     success = utils.isValidDetails(details, appid)
     if not success:
         messages.info(request, f'Game id {appid} does not have any details :(')
 
+    print(details_ss)
+
     context = {
         'details': details,
+        'details_ss': details_ss,
         'success': success
     }
 
     data = json.dumps(context)
     return HttpResponse(data, content_type='application/json')
 
-def search(request, input):
-    apps = steam_api.fetch_all_apps()
-    searched = search_sort_utils.binary_recursive(apps, input)
+# def search(request, input):
+#     apps = steam_api.fetch_all_apps()
+#     searched = search_sort_utils.binary_recursive(apps, input)
+#
+#     context = {
+#         'app': searched
+#     }
+#
+#     data = json.dumps(context)
+#     return HttpResponse(data, content_type='application/json')
 
-    context = {
-        'app': searched
-    }
+def filterTags(request):
+    key = request.GET.get('key')
+    reverse = request.GET.get('reverse_list')
+    print(f'Reverse: {reverse}')
+    return index(request, reverse=reverse, key=key)
 
-    data = json.dumps(context)
-    return HttpResponse(data, content_type='application/json')
+# def reverse(request, reverse):
+#     key = request.GET.get('key')
+#     return index(request, )
+
 
 # Handles the filter request
 # def filter(request):

@@ -15,19 +15,22 @@
                     document.getElementById('containerInfo').style.display = 'flex'
 
                     var game_data = data.details['{{ appid }}']['data']
-                    console.log(game_data)
+                    var details_ss = data.details_ss
+
                     document.getElementById('name').innerHTML = game_data['name']
-                    {#document.getElementById('game_type').innerHTML = "Gametype: "+game_data['type']#}
-                    {#document.getElementById('required_age').innerHTML = game_data['required_age']#}
                     document.getElementById('about_the_game').innerHTML = game_data['about_the_game']
                     document.getElementById('short_description').innerHTML = game_data['short_description']
                     document.getElementById('supported_languages').innerHTML = game_data['supported_languages']
-                    document.getElementById('release_date').innerHTML = "Release date: " + game_data['release_date']['date']
-                    document.getElementById('developers').innerHTML = game_data['developers']
-                    document.getElementById('publishers').innerHTML = game_data['publishers']
-                    document.getElementById('website').href = game_data['website']
-
-                    setPlatforms(game_data['platforms'])
+                    document.getElementById('release_date').innerHTML = "<b>Release date: </b>" + game_data['release_date']['date']
+                    document.getElementById('developers').innerHTML = "<p><b>Devloper(s): </b>" + game_data['developers'] + "</p>"
+                    document.getElementById('publishers').innerHTML = "<p><b>Publisher(s): </b>" + game_data['publishers'] + "</p>"
+                    document.getElementById('owners').innerHTML = "<p><b>Owners: </b>" + details_ss['owners'] + "</p>"
+                    document.getElementById('price').innerHTML = "<p><b>Price: </b>" + parseFloat(details_ss['price'] / 100) + "$" + "</p>"
+                    if (game_data['website'] !== null) {
+                        document.getElementById('link').href = game_data['website']
+                    }
+                    setRating(details_ss)
+                    setPlatforms(game_data['platforms'], game_data['website'])
                     setWebsite(game_data['website'])
                     setUpcoming(game_data['release_date'])
                     validateAboutDescription(game_data['about_the_game'], game_data['short_description'])
@@ -37,6 +40,18 @@
             })
         });
 
+        function setRating(details_ss) {
+            const pos = details_ss['positive']
+            const neg = details_ss['negative']
+            const total = pos + neg
+            const neg_frac = parseInt(total / neg)
+            document.getElementById('dislikeAmount').innerHTML = neg + " (" + neg_frac + "%)"
+            document.getElementById('likeAmount').innerHTML = pos + " (" + (100 - neg_frac) + "%)"
+            console.log(neg, details_ss['positive'], details_ss['negative'])
+            document.getElementById('span_rating_count').innerHTML = total
+            document.getElementById('containerDislike').setAttribute("style", "width:10%".replace('10%', neg_frac + "%"))
+        }
+
         function validateAboutDescription(about, description) {
             if (about === description) {
                 document.getElementById('short_description').style.display = 'none'
@@ -45,7 +60,8 @@
 
         function setWebsite(website_data) {
             if (website_data !== null) {
-                document.getElementById('website').innerHTML = website_data
+                {#document.getElementById('website').innerHTML = website_data#}
+                document.getElementById('link').href = website_data
             }
         }
 
@@ -55,7 +71,11 @@
             }
         }
 
-        function setPlatforms(platforms) {
+        function setPlatforms(platforms, website_data) {
+            if (website_data === null) {
+                document.getElementById('linkDiv').style.display = "none"
+            }
+
             if (!platforms['windows']) {
                 document.getElementById('windowsDiv').style.display = "none"
             }
@@ -75,6 +95,10 @@
     <div id="containerTop">
         <h1 id="name"></h1>
         <div id="platforms">
+            <div id="linkDiv">
+                <a id="link" href=""><img class="os_icon" src="{% static 'admin/img/url.svg' %} " alt="website"></a>
+            </div>
+
             <div id="windowsDiv">
                 <img id="windows" class="os_icon" src="{% static 'admin/img/windows.svg' %}" alt="windows">
             </div>
@@ -90,9 +114,36 @@
     </div>
 
     <div id="containerDate">
-        <p id="release_date"></p>
-        <p id="coming_soon"></p>
+
+        <div id="containerLeft">
+            <div id="developers"></div>
+            <div id="publishers"></div>
+            <p id="release_date"></p>
+            <p id="coming_soon"></p>
+            <p id="owners"></p>
+            <p id="price"></p>
+        </div>
+
+        <div id="containerlikes">
+            <h3>Like - Dislike ratio</h3>
+            <h4>Total: <span style="color: #004080" id="span_rating_count">Loading...</span></h4>
+
+            <div id="containerLikeDislikeRatio">
+                <div id="containerLike">
+                    <p id="likeAmount"></p>
+                </div>
+
+                <div id="containerDislike">
+                    <p id="dislikeAmount"></p>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
+
+
     <div id="containerAboutDescription">
         <h3>About:</h3>
         {% autoescape off %}
@@ -104,9 +155,7 @@
         <h3>Supported languages:</h3>
         <p id="supported_languages"></p>
     </div>
-    <div id="developers"></div>
-    <div id="publishers"></div>
-    <a id="website" href=""></a>
+
 </div>
 </body>
 </html>

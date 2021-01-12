@@ -24,8 +24,7 @@
     {#                        <option name="{{ key }}">{{ key }}</option>#}
     {#                    {% endfor %}#}
     {#                </select>#}
-    {#                <img id="reverse_icon" src="{% static 'admin/img/reverse.svg' %}" alt="Reverse list"#}
-    {#                     onclick="reverseList()">#}
+
     {#            </div>#}
     {#            <input type="submit">#}
     {#        </form>#}
@@ -34,16 +33,27 @@
 
     {#    Data info#}
     {#    <h1>Filtered on key: <span style="color: #004080">{{ filter }}</span></h1>#}
-    <img id="filter" style="cursor: pointer" src="{% static 'admin/img/reverse.svg' %}" alt="reverse"
-         onclick="reverseList()" width="30px"/>
-    <h1>Item count: <span style="color: #004080" id="span_item_count">Loading...</span></h1>
+    {#    <img id="filter" style="cursor: pointer" src="{% static 'admin/img/reverse.svg' %}" alt="reverse"#}
+    {#         onclick="reverseList()" width="30px"/>#}
+    <form id="form_filter" action="{% url 'filterData' %}" method="get">
+        <select id="select" name="key">
+            {% for key in keys %}
+                <option name="{{ key }}">{{ key }}</option>
+            {% endfor %}
+        </select><br>
+        <input id="hidden_reverse_status" type="hidden" name="reverse_list" value="{{ reverse }}">
+        <input type="submit">
+    </form>
+    <img class="os_icon" src="{% static 'admin/img/reverse.svg' %}" alt="Reverse list"
+         onclick="reverseList()" width="30px">
+    <h1>Showing <span style="color: #004080" id="span_item_count">Loading...</span> items</h1>
     {% if messages %}
         {% for message in messages %}
             <p id="message">{{ message }}</p>
         {% endfor %}
     {% endif %}
 
-    <input id="searchbar" type="text">
+    {#    <input id="searchbar" type="text">#}
 
     <div id="loadingPlaceholder">
         <h1>Fetching results from Steam API</h1>
@@ -57,37 +67,41 @@
 <script>
 
 
-    {#Sets the value of the select option so that the previous filter key is selected#}
-    {#var select = document.getElementById('select')#}
-    {#var options = select.options;#}
-    {#for (var opt, j = 0; opt = options[j]; j++) {#}
-    {#    if (opt.value === '{{ filter }}') {#}
-    {#        select.selectedIndex = j;#}
-    {#        break;#}
-    {#    }#}
-
     {#Declares the loader value#}
     $(document).ready(function () {
 
-        $("#searchbar").change(function () {
-            value = $("#searchbar").val()
-            $.ajax({
-                url: "{% url 'search' input=12345  %}".replace(/12345/, value),
-            }).done(function (data) {
-                console.log(data.app)
-            });
-        })
+        {#$("#searchbar").change(function () {#}
+        {#    value = $("#searchbar").val()#}
+        {#    $.ajax({#}
+        {#        url: "{% url 'search' input=12345  %}".replace(/12345/, value),#}
+        {#    }).done(function (data) {#}
+        {#        console.log(data.app)#}
+        {#    });#}
 
 
         $.ajax({
-            url: "{% url 'fetch_steam_apps' %}",
+            url: "{% url 'fetch_steam_apps' filter_key=12345 reversed=reverse %}".replace(/12345/, '{{ filter_key }}'),
         }).done(function (data) {
 
-            document.getElementById('span_item_count').innerText = data.apps.length
+            const filter_keys = data.keys;
+            var select = document.getElementById('select');
+            for (let i = 0; i < filter_keys.length; i++) {
+                var option = document.createElement("option")
+                option.innerText = filter_keys[i]
+                select.add(option)
+            }
+
+            {#Sets the value of the select option so that the previous filter key is selected#}
+            var select = document.getElementById('select')
+            var options = select.options;
+            for (var opt, j = 0; opt = options[j]; j++) {
+                if (opt.value === '{{ filter_key }}') {
+                    select.selectedIndex = j;
+                    break;
+                }
+            }
 
             document.getElementById('loadingPlaceholder').style.display = "none"
-
-
             var loader = 0
 
             {#Calls the function that loads 10 elements from the JSON#}
@@ -106,9 +120,16 @@
 
             function loadmore() {
                 const dict_list = data.apps;
+                console.log('{{ reverse }}')
+                if ('{{ reverse }}'.toLowerCase() === 'true') {
+                    console.log('reversing')
+                    dict_list.reverse();
+                }
 
                 for (i = loader * 10; i < (loader * 10) + 10; i++) {
                     console.log('Loading item: ' + dict_list[i]['appid'])
+
+                    document.getElementById('span_item_count').innerText = i + 1
 
                     var item = document.getElementById('containerPerItem')
                     var clone = item.cloneNode(true)
@@ -150,7 +171,8 @@
     });
 
     function reverseList() {
-        location.href = '{% url 'index' %}'
+        document.getElementById('hidden_reverse_status').value = '{{ reverse }}'.toLowerCase() !== 'true';
+        document.getElementById('form_filter').submit();
     }
 </script>
 </html>
