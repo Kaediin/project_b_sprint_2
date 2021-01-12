@@ -18,8 +18,9 @@ def fetch_steam_data_ajax(request, filter_key, reversed):
     print(f'Key: {filter_key}')
 
     apps = steam_api.fetch_all_apps_steamspy()
+    # length = len(steam_api.fetch_all_apps())
 
-    if filter_key not in steam_api.getKeys() :
+    if filter_key not in steam_api.getKeys():
         print('Filterkey is none')
         filter_key = 'appid'
 
@@ -28,7 +29,8 @@ def fetch_steam_data_ajax(request, filter_key, reversed):
     context = {
         'apps': sorted_apps,
         'reverse': reversed,
-        'keys': keys
+        'keys': keys,
+        # 'length': length
     }
 
     data = json.dumps(context)

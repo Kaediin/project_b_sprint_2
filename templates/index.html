@@ -44,9 +44,9 @@
         <input id="hidden_reverse_status" type="hidden" name="reverse_list" value="{{ reverse }}">
         <input type="submit">
     </form>
-    <img class="os_icon" src="{% static 'admin/img/reverse.svg' %}" alt="Reverse list"
+    <img id="filter_icon" src="{% static 'admin/img/reverse.svg' %}" alt="Reverse list"
          onclick="reverseList()" width="30px">
-    <h1>Showing <span style="color: #004080" id="span_item_count">Loading...</span> items</h1>
+    <h1>Showing <span style="color: #004080" id="span_item_count">Loading...</span>/<span style="color: #004080" id="span_item_length">Loading...</span> items</h1>
     {% if messages %}
         {% for message in messages %}
             <p id="message">{{ message }}</p>
@@ -82,6 +82,7 @@
         $.ajax({
             url: "{% url 'fetch_steam_apps' filter_key=12345 reversed=reverse %}".replace(/12345/, '{{ filter_key }}'),
         }).done(function (data) {
+            document.getElementById('span_item_length').innerText = '108081'
 
             const filter_keys = data.keys;
             var select = document.getElementById('select');

@@ -58,8 +58,8 @@ select {
     padding: 0;
 }
 
-#filter {
-    width: 30px;
-    padding: 0 10px 0 10px;
+#filter_icon{
     filter: invert(1);
+    margin-top: 20px;
+    transform: rotate(90deg);
 }
