@@ -25,28 +25,31 @@
 
 <div id="containerStats">
     <div id="containerBoxPlot">
-        <div id="boxplotLeft"><hr>
+        <div id="boxplotLeft">
+            <hr>
         </div>
 
         <div id="interkwartiel">
             <div id="medianBoxplot"></div>
         </div>
 
-        <div id="boxplotRight"><hr>
+        <div id="boxplotRight">
+            <hr>
 
         </div>
 
     </div>
-    <p id="mean"></p>
-    <p id="median"></p>
-    <p id="modus"></p>
-    <p id="variance"></p>
-    <p id="standard"></p>
-    <p id="q1"></p>
-    <p id="q3"></p>
-    <p id="range"></p>
 
-
+    <div id="containerTextStats">
+        <p id="mean"></p>
+        <p id="median"></p>
+        <p id="modus"></p>
+        <p id="variance"></p>
+        <p id="standard"></p>
+        <p id="q1"></p>
+        <p id="q3"></p>
+        <p id="range"></p>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -201,6 +204,7 @@
                 {#middle -> q1 - q3#}
                 {#right -> q3 - q4#}
                 {#FYI: The makeup is done in the stats_style.css#}
+
                 function setBoxPlot(range, q1, q3, median) {
                     var leftContainerWidth = (q1 / range) * 100
                     var medianWidth = (median / range) * 100
@@ -212,9 +216,9 @@
                     console.log(100 - rightContainerWidth)
                     console.log(medianWidth)
                     document.getElementById('boxplotLeft').style.width = leftContainerWidth + '%'
-                    document.getElementById('medianBoxplot').style.marginLeft = medianWidth+'%'
+                    document.getElementById('medianBoxplot').style.marginLeft = medianWidth + '%'
                     document.getElementById('boxplotRight').style.width = rightContainerWidth + '%'
-                    document.getElementById('interkwartiel').style.width = totalWidth+"%"
+                    document.getElementById('interkwartiel').style.width = totalWidth + "%"
                 }
 
             }

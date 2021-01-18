@@ -7,7 +7,6 @@
     display: flex;
     justify-content: center;
     flex-direction: column;
-    text-align: center;
     color: white;
 }
 
@@ -57,4 +56,9 @@ div#medianBoxplot{
     background-color: cornflowerblue;
     padding: 0;
     height: calc(100% - 2px);
+}
+
+div#containerTextStats{
+    width: 30%;
+    margin: auto auto 20px auto;
 }
