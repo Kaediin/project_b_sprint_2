@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stats</title>
+    <link rel="stylesheet" href="{% static 'admin/css/stats_style.css' %}" type="text/css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+</head>
+<body>
+{% include 'header.html' %}
+<div id="container_games_prices">
+    <canvas id="games-prices-chart" data-url="{% url 'populate_prices' %}"></canvas>
+</div>
+
+<div id="container_games_owners">
+    <canvas id="games-owners-chart" data-url="{% url 'populate_owners' %}"></canvas>
+</div>
+
+<div id="container_games_prices">
+    <canvas id="games-sequence-chart" data-url="{% url 'games_sequence' %}"></canvas>
+</div>
+
+<div id="containerStats">
+    <div id="containerBoxPlot">
+        <div id="boxplotLeft"><hr>
+        </div>
+
+        <div id="interkwartiel">
+            <div id="medianBoxplot"></div>
+        </div>
+
+        <div id="boxplotRight"><hr>
+
+        </div>
+
+    </div>
+    <p id="mean"></p>
+    <p id="median"></p>
+    <p id="modus"></p>
+    <p id="variance"></p>
+    <p id="standard"></p>
+    <p id="q1"></p>
+    <p id="q3"></p>
+    <p id="range"></p>
+
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+<script>
+    {#Bar chart#}
+    $(function () {
+        var gamesPricesChart = $("#games-prices-chart");
+        $.ajax({
+            url: gamesPricesChart.data("url"),
+            success: function (data) {
+
+                var ctx = gamesPricesChart[0].getContext("2d");
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Games',
+                            backgroundColor: 'blue',
+                            data: data.data
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Games-Prices Bar Chart'
+                        }
+                    }
+                });
+
+            }
+        });
+
+    });
+
+    {#Pie chart#}
+    $(function () {
+        var $populationChart = $("#games-owners-chart");
+        $.ajax({
+            url: $populationChart.data("url"),
+            success: function (data) {
+
+                var ctx = $populationChart[0].getContext("2d");
+
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Owners',
+                            backgroundColor: [
+                                '#0000ff', '#0000cc', '#000099', '#000066', '#000033', '#3333ff', '#6666ff', '#9999ff'
+                            ],
+                            data: data.data
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Games-Owners Bar Chart'
+                        }
+                    }
+                });
+
+            }
+        });
+
+    });
+
+    {#Chart id#}
+    $(function () {
+        var gamesPricesChart = $("#games-sequence-chart");
+        $.ajax({
+            url: gamesPricesChart.data("url"),
+            success: function (data) {
+
+                var ctx = gamesPricesChart[0].getContext("2d");
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'App Ids',
+                            backgroundColor: 'blue',
+                            data: data.data
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Game App Ids Bar Chart'
+                        }
+                    }
+                });
+
+            }
+        });
+
+    });
+
+
+    {#Variabel Chart#}
+
+    $(function () {
+        $.ajax({
+            {#url to fetch boxplot stats#}
+            url: '{% url 'boxplot_stats' 'appid' %}',
+            success: function (data) {
+                {#if it fetches price we need to convert it into dollars (so divide by 100)#}
+                if (data.chart_type === "price") {
+                    document.getElementById('mean').innerHTML = "Mean: $" + parseInt(data.stats.mean) / 100
+                    document.getElementById('median').innerHTML = "Median: $" + parseInt(data.stats.median) / 100
+                    document.getElementById('modus').innerHTML = "Modus: $" + parseInt(data.stats.modus) / 100
+                    document.getElementById('variance').innerHTML = "Variance: $" + parseInt(data.stats.variance) / 10000
+                    document.getElementById('standard').innerHTML = "Standard: $" + parseInt(data.stats.standard) / 100
+                    document.getElementById('q1').innerHTML = "Q1: $" + parseInt(data.stats.q1) / 100
+                    document.getElementById('q3').innerHTML = "Q3: $" + parseInt(data.stats.q3) / 100
+                    document.getElementById('range').innerHTML = "Range: $" + parseInt(data.stats.range) / 100
+
+                    setBoxPlot(parseInt(data.stats.range) / 100, parseInt(data.stats.q1) / 100, parseInt(data.stats.q3) / 100, parseInt(data.stats.median) / 100)
+                } else {
+                    document.getElementById('mean').innerHTML = "Mean: " + parseInt(data.stats.mean)
+                    document.getElementById('median').innerHTML = "Median: " + parseInt(data.stats.median)
+                    document.getElementById('modus').innerHTML = "Modus: " + parseInt(data.stats.modus)
+                    document.getElementById('variance').innerHTML = "Variance: " + parseInt(data.stats.variance) / 100
+                    document.getElementById('standard').innerHTML = "Standard: " + parseInt(data.stats.standard)
+                    document.getElementById('q1').innerHTML = "Q1: " + parseInt(data.stats.q1)
+                    document.getElementById('q3').innerHTML = "Q3: " + parseInt(data.stats.q3)
+                    document.getElementById('range').innerHTML = "Range: " + parseInt(data.stats.range)
+
+                    setBoxPlot(parseInt(data.stats.range), parseInt(data.stats.q1), parseInt(data.stats.q3), parseInt(data.stats.median))
+
+                }
+
+                {#set widths of the 3 container which make up the boxplots#}
+                {#left -> q0 - q1#}
+                {#middle -> q1 - q3#}
+                {#right -> q3 - q4#}
+                {#FYI: The makeup is done in the stats_style.css#}
+                function setBoxPlot(range, q1, q3, median) {
+                    var leftContainerWidth = (q1 / range) * 100
+                    var medianWidth = (median / range) * 100
+                    var rightContainerWidth = ((range - q3) / range) * 100
+
+                    totalWidth = 100 - (leftContainerWidth + rightContainerWidth)
+
+                    console.log(leftContainerWidth)
+                    console.log(100 - rightContainerWidth)
+                    console.log(medianWidth)
+                    document.getElementById('boxplotLeft').style.width = leftContainerWidth + '%'
+                    document.getElementById('medianBoxplot').style.marginLeft = medianWidth+'%'
+                    document.getElementById('boxplotRight').style.width = rightContainerWidth + '%'
+                    document.getElementById('interkwartiel').style.width = totalWidth+"%"
+                }
+
+            }
+        })
+    });
+
+
+</script>
+</body>
+</html>

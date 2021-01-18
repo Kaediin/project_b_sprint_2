@@ -26,7 +26,7 @@ select {
 #containerPerItem {
     display: none;
     flex-direction: column;
-    border: 10px solid black;
+    border: 7px solid black;
     border-radius: 10px;
     padding: 20px;
     margin: 50px auto 50px auto;
@@ -58,44 +58,8 @@ select {
     padding: 0;
 }
 
-#filter_icon {
+#filter_icon{
     filter: invert(1);
     margin-top: 20px;
     transform: rotate(90deg);
-    cursor: pointer;
-}
-
-#containerRadioGroup {
-    margin: 20px 0 20px 0;
-}
-
-#charts {
-    border: 5px solid #00264d;
-    padding: 10px 75px 10px 75px;
-    cursor: pointer;
-}
-
-#charts:hover {
-    transition: 0.8s;
-    background-color: #00264d;
-}
-
-table p {
-    padding: 0;
-    margin: 0;
-}
-
-table, th {
-    border: 10px solid #00264d;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 15px;
-}
-
-#containerNameId {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }

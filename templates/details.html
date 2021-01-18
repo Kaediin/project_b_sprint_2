@@ -7,16 +7,21 @@
     <link href="{% static 'admin/css/details_style.css' %}" rel="stylesheet" type="text/css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
+        {#activate this function when the document (webpage) is loaded#}
         $(document).ready(function () {
             $.ajax({
+                {#the url to call. One of the async tasks in the views.py#}
                 url: "{% url 'fetch_details' 12345 %}".replace(/12345/, '{{ appid }}')
             }).done(function (data) {
                 if (data.success) {
+                    {#set the container to flex (flexbox)#}
                     document.getElementById('containerInfo').style.display = 'flex'
 
+                    {#get gamedata (json) from the python function called from the url#}
                     var game_data = data.details['{{ appid }}']['data']
                     var details_ss = data.details_ss
 
+                    {#set values of document elements #}
                     document.getElementById('name').innerHTML = game_data['name']
                     document.getElementById('about_the_game').innerHTML = game_data['about_the_game']
                     document.getElementById('short_description').innerHTML = game_data['short_description']
@@ -35,11 +40,13 @@
                     setUpcoming(game_data['release_date'])
                     validateAboutDescription(game_data['about_the_game'], game_data['short_description'])
                 } else {
+                    {#if the details-call did not succeed, go back to index.html#}
                     location.href = "{% url 'index' %}"
                 }
             })
         });
 
+        {#Set the rating bar of the details#}
         function setRating(details_ss) {
             const pos = details_ss['positive']
             const neg = details_ss['negative']
@@ -52,12 +59,14 @@
             document.getElementById('containerDislike').setAttribute("style", "width:10%".replace('10%', neg_frac + "%"))
         }
 
+        {#Some descriptions have the same text as short_description. THis prevents from showing both#}
         function validateAboutDescription(about, description) {
             if (about === description) {
                 document.getElementById('short_description').style.display = 'none'
             }
         }
 
+        {#Show the website link (if it has one)#}
         function setWebsite(website_data) {
             if (website_data !== null) {
                 {#document.getElementById('website').innerHTML = website_data#}
@@ -65,12 +74,14 @@
             }
         }
 
+        {#If the game is upcoming, show that#}
         function setUpcoming(upcoming_data) {
             if (upcoming_data['coming_soon']) {
                 document.getElementById('release_date').innerHTML = "COMING SOON! - " + upcoming_data['date']
             }
         }
 
+        {#Shows platform-icons that the game is made for#}
         function setPlatforms(platforms, website_data) {
             if (website_data === null) {
                 document.getElementById('linkDiv').style.display = "none"
@@ -138,9 +149,7 @@
                 </div>
 
             </div>
-
         </div>
-
     </div>
 
 

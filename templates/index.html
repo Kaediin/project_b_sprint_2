@@ -14,27 +14,12 @@
 {% include 'header.html' %}
 {#Main container#}
 <div id="container">
+    <p id="stats"></p>
+    <div id="charts" onclick="location.href = {% url 'stats' %}">
+        Statistics
+    </div>
+    <h1>Sorting style: {{ checked_button }}</h1>
 
-    {#    Container for the form#}
-    {#    <div id="containerForm">#}
-    {#        <form id="form_filter" action="{% url 'filterData' %}" method="get">#}
-    {#            <div id="containerReverse">#}
-    {#                <select id="select" name="key">#}
-    {#                    {% for key in keys %}#}
-    {#                        <option name="{{ key }}">{{ key }}</option>#}
-    {#                    {% endfor %}#}
-    {#                </select>#}
-
-    {#            </div>#}
-    {#            <input type="submit">#}
-    {#        </form>#}
-    {#        <br>#}
-    {#    </div>#}
-
-    {#    Data info#}
-    {#    <h1>Filtered on key: <span style="color: #004080">{{ filter }}</span></h1>#}
-    {#    <img id="filter" style="cursor: pointer" src="{% static 'admin/img/reverse.svg' %}" alt="reverse"#}
-    {#         onclick="reverseList()" width="30px"/>#}
     <form id="form_filter" action="{% url 'filterData' %}" method="get">
         <select id="select" name="key">
             {% for key in keys %}
@@ -42,54 +27,112 @@
             {% endfor %}
         </select><br>
         <input id="hidden_reverse_status" type="hidden" name="reverse_list" value="{{ reverse }}">
+        <div id="containerRadioGroup">
+            <input type="radio" id="binary" name="radio_sort" value="binary">
+            <label for="binary">Binary Search Tree</label><br>
+            <input type="radio" id="merge" name="radio_sort" value="merge">
+            <label for="merge">Merge Sort</label><br>
+            <input type="radio" id="insertion" name="radio_sort" value="insertion">
+            <label for="insertion">Insertion Sort (slow)</label>
+        </div>
+
         <input type="submit">
     </form>
     <img id="filter_icon" src="{% static 'admin/img/reverse.svg' %}" alt="Reverse list"
          onclick="reverseList()" width="30px">
-    <h1>Showing <span style="color: #004080" id="span_item_count">Loading...</span>/<span style="color: #004080" id="span_item_length">Loading...</span> items</h1>
+    <h1>Showing <span style="color: #004080" id="span_item_count">Loading...</span>/<span style="color: #004080"
+                                                                                          id="span_item_length">Loading...</span>
+        items</h1>
     {% if messages %}
         {% for message in messages %}
             <p id="message">{{ message }}</p>
         {% endfor %}
     {% endif %}
 
-    {#    <input id="searchbar" type="text">#}
 
     <div id="loadingPlaceholder">
         <h1>Fetching results from Steam API</h1>
     </div>
     <div id="containerPerItem">
-        <h1 class="name"></h1>
-        <h1 class="appid"></h1>
+        <div id="containerNameId">
+            <h1 class="name"></h1>
+            <p class="appid"></p>
+        </div>
+
+        <table>
+            <tr>
+                <td><p>Developer</p></td>
+                <td><p class="developer"></p></td>
+            </tr>
+            <tr>
+                <td><p>Publisher</p></td>
+                <td><p class="publisher"></p></td>
+            </tr>
+            <tr>
+                <td><p>Positive</p></td>
+                <td><p class="positive"></p></td>
+            </tr>
+            <tr>
+                <td><p>Negative</p></td>
+                <td><p class="negative"></p></td>
+            </tr>
+            <tr>
+                <td><p>Owners</p></td>
+                <td><p class="owners"></p></td>
+            </tr>
+            <tr>
+                <td><p>Price</p></td>
+                <td><p class="price"></p></td>
+            </tr>
+        </table>
+        <p class="populariteit"></p>
     </div>
 </div>
 </body>
 <script>
 
 
-    {#Declares the loader value#}
     $(document).ready(function () {
-
-        {#$("#searchbar").change(function () {#}
-        {#    value = $("#searchbar").val()#}
-        {#    $.ajax({#}
-        {#        url: "{% url 'search' input=12345  %}".replace(/12345/, value),#}
-        {#    }).done(function (data) {#}
-        {#        console.log(data.app)#}
-        {#    });#}
-
-
         $.ajax({
-            url: "{% url 'fetch_steam_apps' filter_key=12345 reversed=reverse %}".replace(/12345/, '{{ filter_key }}'),
+            {#url to fetch info from#}
+            url: "{% url 'fetch_steam_apps' filter_key=12345 reversed=reverse sort_type=checked_button %}".replace(/12345/, '{{ filter_key }}'),
         }).done(function (data) {
+            {#get all the label_fractions (ex: 500k - 1m downloads = 23% of the games)#}
+            const frac_labels = data.fraction_labels
             document.getElementById('span_item_length').innerText = '108081'
 
+            {#set var of the checekd radio-button#}
+            var radioButton = '{{ checked_button }}'
+            {#activate the previous selected radio-button. Disable the others (just in case something goes wrong which it shouldnt)#}
+            switch (radioButton) {
+                case 'binary':
+                    document.getElementById('binary').checked = true
+                    document.getElementById('merge').checked = false
+                    document.getElementById('insertion').checked = false
+                    break
+                case 'merge':
+                    document.getElementById('binary').checked = false
+                    document.getElementById('merge').checked = true
+                    document.getElementById('insertion').checked = false
+                    break
+                case 'insertion':
+                    document.getElementById('binary').checked = false
+                    document.getElementById('merge').checked = false
+                    document.getElementById('insertion').checked = true
+                    break
+            }
+
+            {#Add the keys in the select element. Also preselect the previous selected option#}
             const filter_keys = data.keys;
             var select = document.getElementById('select');
             for (let i = 0; i < filter_keys.length; i++) {
                 var option = document.createElement("option")
                 option.innerText = filter_keys[i]
+                if ('{{ checked_button }}' === 'binary' && filter_keys[i] !== 'appid' && filter_keys[i] !== 'name') {
+                    option.disabled = true
+                }
                 select.add(option)
+
             }
 
             {#Sets the value of the select option so that the previous filter key is selected#}
@@ -97,11 +140,47 @@
             var options = select.options;
             for (var opt, j = 0; opt = options[j]; j++) {
                 if (opt.value === '{{ filter_key }}') {
-                    select.selectedIndex = j;
-                    break;
+                    if ('{{ checked_button }}' === 'binary'
+                        && '{{ filter_key }}' !== 'appid'
+                        && '{{ filter_key }}' !== 'name') {
+                        select.selectedIndex = 0;
+                        break
+                    } else {
+                        select.selectedIndex = j;
+                        break;
+
+                    }
+
                 }
             }
 
+            {#Check to see if the radio-button which it selected doesnt conflict with the select-option#}
+            {#for example: the binary search tree can only sort name and id#}
+            var radios = document.forms['form_filter'].elements['radio_sort'];
+            for (let i = 0; i < radios.length; i++) {
+                radios[i].onclick = function () {
+                    if (this.value === "binary") {
+                        var select = document.getElementById('select')
+                        var options = select.options;
+                        for (var opt, j = 0; opt = options[j]; j++) {
+                            if (opt.innerHTML !== 'appid' && opt.innerHTML !== 'name') {
+                                if (opt.selected) {
+                                    select.selectedIndex = 0;
+                                }
+                                opt.disabled = true
+                            }
+                        }
+                    } else {
+                        var select = document.getElementById('select')
+                        var options = select.options;
+                        for (var opt, j = 0; opt = options[j]; j++) {
+                            opt.disabled = false
+
+                        }
+                    }
+                }
+            }
+            {#remove loading text#}
             document.getElementById('loadingPlaceholder').style.display = "none"
             var loader = 0
 
@@ -117,6 +196,7 @@
                 }
             }
 
+
             {#Load more function#}
 
             function loadmore() {
@@ -126,20 +206,31 @@
                     console.log('reversing')
                     dict_list.reverse();
                 }
-
+                {#load 10 times#}
                 for (i = loader * 10; i < (loader * 10) + 10; i++) {
                     console.log('Loading item: ' + dict_list[i]['appid'])
 
+                    {#update itemcount#}
                     document.getElementById('span_item_count').innerText = i + 1
 
+                    {#clone placeholer and duplicate them i amount of times#}
                     var item = document.getElementById('containerPerItem')
                     var clone = item.cloneNode(true)
 
                     clone.style.display = 'flex'
 
+                    {#set values of placeholder#}
                     clone.querySelector('.name').innerText = dict_list[i]['name']
                     clone.querySelector('.appid').innerText = "ID: " + dict_list[i]['appid']
+                    clone.querySelector('.developer').innerHTML = dict_list[i]['developer']
+                    clone.querySelector('.publisher').innerHTML = dict_list[i]['publisher']
+                    clone.querySelector('.positive').innerHTML = dict_list[i]['positive']
+                    clone.querySelector('.negative').innerHTML = dict_list[i]['negative']
+                    clone.querySelector('.owners').innerHTML = dict_list[i]['owners']
+                    clone.querySelector('.price').innerHTML = '$' + parseInt(dict_list[i]['price']) / 100
+                    clone.querySelector('.populariteit').innerHTML = "This game is one of the " + getFractionLabel(frac_labels, dict_list[i]['owners']) + '% most popular games'
 
+                    {#listen to the click event (go to the details)#}
                     clone.addEventListener('click', (evt) => {
                         try {
 
@@ -171,6 +262,22 @@
         });
     });
 
+    {#calculated the % of popularity#}
+    function getFractionLabel(labels, owners) {
+        var percentage = 0
+        var ownersValue = parseInt(owners.split(' .. ')[0].replaceAll(',', ''))
+        for (var i in labels) {
+            var labelValue = parseInt(i.split(' .. ')[0].replaceAll(',', ''))
+
+            if (ownersValue <= labelValue) {
+                percentage += labels[i]
+            }
+        }
+        return parseFloat(percentage).toFixed(2)
+
+    }
+
+    {#reverse list when icon is clicked#}
     function reverseList() {
         document.getElementById('hidden_reverse_status').value = '{{ reverse }}'.toLowerCase() !== 'true';
         document.getElementById('form_filter').submit();
