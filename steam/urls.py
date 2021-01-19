@@ -12,5 +12,7 @@ urlpatterns = [
     path('Stats/Populate_prices', views.populate_prices, name='populate_prices'),
     path('Stats/Games_sequence', views.games_sequence, name='games_sequence'),
     path('Stats/Populate_owners', views.populate_owners, name='populate_owners'),
-    path('Stats/Boxplot/<type>', views.boxplot_stats, name='boxplot_stats')
+    path('Stats/Boxplot/<type>', views.boxplot_stats, name='boxplot_stats'),
+    path('Top-100/', views.top100, name='top100'),
+    path('Top-100/Fetch', views.fetch_top100, name='fetch_top100')
 ]

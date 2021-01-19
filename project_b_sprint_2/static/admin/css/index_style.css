@@ -69,13 +69,17 @@ select {
     margin: 20px 0 20px 0;
 }
 
-#charts {
+#charts, #top100 {
     border: 5px solid #00264d;
-    padding: 10px 75px 10px 75px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    width: 200px;
+    text-align: center;
     cursor: pointer;
+    margin: 20px 0 20px 0;
 }
 
-#charts:hover {
+#charts:hover, #top100:hover {
     transition: 0.8s;
     background-color: #00264d;
 }

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Top 100 Apps</title>
+     <link rel="stylesheet" href="{% static 'admin/css/index_style.css' %}" type="text/css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+{# Header section (steam icon and bar) #}
+{% include 'header.html' %}
+{#Main container#}
+<div id="container">
+    <p id="stats"></p>
+    <div id="charts" onclick="location.href = {% url 'stats' %}">
+        Statistics
+    </div>
+    <h1>Showing Top 100 most played games (in 2 weeks)</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p id="message">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+
+    <div id="loadingPlaceholder">
+        <h1>Fetching results from Steam API</h1>
+    </div>
+    <div id="containerPerItem">
+        <div id="containerNameId">
+            <h1 class="name"></h1>
+            <p class="appid"></p>
+        </div>
+
+        <table>
+            <tr>
+                <td><p>Developer</p></td>
+                <td><p class="developer"></p></td>
+            </tr>
+            <tr>
+                <td><p>Publisher</p></td>
+                <td><p class="publisher"></p></td>
+            </tr>
+            <tr>
+                <td><p>Positive</p></td>
+                <td><p class="positive"></p></td>
+            </tr>
+            <tr>
+                <td><p>Negative</p></td>
+                <td><p class="negative"></p></td>
+            </tr>
+            <tr>
+                <td><p>Owners</p></td>
+                <td><p class="owners"></p></td>
+            </tr>
+            <tr>
+                <td><p>Price</p></td>
+                <td><p class="price"></p></td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>
+<script>
+
+
+    $(document).ready(function () {
+        $.ajax({
+            {#url to fetch info from#}
+            url: "{% url 'fetch_top100' %}",
+        }).done(function (data) {
+            {#get all the label_fractions (ex: 500k - 1m downloads = 23% of the games)#}
+
+            {#remove loading text#}
+            document.getElementById('loadingPlaceholder').style.display = "none"
+            var loader = 0
+
+            {#Calls the function that loads 10 elements from the JSON#}
+            loadmore()
+
+            {#Scroll detection on the window#}
+            window.onscroll = function (ev) {
+
+                {#If the user's scroll position is at the bottom of the window = load 10 more elements from the list#}
+                if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+                    loadmore()
+                }
+            }
+
+
+            {#Load more function#}
+
+            function loadmore() {
+                const dict_list = data.apps;
+
+                {#load 10 times#}
+                for (i = loader * 10; i < (loader * 10) + 10; i++) {
+                    console.log('Loading item: ' + dict_list[i]['appid'])
+
+                    {#clone placeholer and duplicate them i amount of times#}
+                    var item = document.getElementById('containerPerItem')
+                    var clone = item.cloneNode(true)
+
+                    clone.style.display = 'flex'
+
+                    {#set values of placeholder#}
+                    clone.querySelector('.name').innerText = dict_list[i]['name']
+                    clone.querySelector('.appid').innerText = "ID: " + dict_list[i]['appid']
+                    clone.querySelector('.developer').innerHTML = dict_list[i]['developer']
+                    clone.querySelector('.publisher').innerHTML = dict_list[i]['publisher']
+                    clone.querySelector('.positive').innerHTML = dict_list[i]['positive']
+                    clone.querySelector('.negative').innerHTML = dict_list[i]['negative']
+                    clone.querySelector('.owners').innerHTML = dict_list[i]['owners']
+                    clone.querySelector('.price').innerHTML = '$' + parseInt(dict_list[i]['price']) / 100
+
+                    {#listen to the click event (go to the details)#}
+                    clone.addEventListener('click', (evt) => {
+                        try {
+
+                            var app_id
+                            if (evt.target.id === "containerPerItem") {
+                                app_id = evt.target.querySelector('.appid').innerText;
+                            } else {
+                                app_id = evt.target.parentElement.querySelector('.appid').innerText;
+                            }
+
+                            app_id = app_id.replace('ID: ', "")
+                            console.log(app_id)
+                            if (app_id > 0) {
+                                location.href = '{% url 'open_app_details' appid=12345 %}'.replace(/12345/, app_id)
+                            } else {
+                                alert('Error launching details. Please choose another game.')
+                            }
+                        } catch (e) {
+                            console.log(e)
+                        }
+                    })
+
+                    document.body.appendChild(clone)
+                }
+
+                loader++
+            }
+
+        });
+    });
+
+</script>

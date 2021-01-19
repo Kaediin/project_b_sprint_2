@@ -176,6 +176,27 @@ def boxplot_stats(request, type):
         'chart_type': type
     })
 
+# render the top 100 apps page
+def top100(request):
+    return render(request, 'topApps.html', {})
+
+# get top 100 games and return to view
+def fetch_top100(request):
+    top100 = steam_api.get_top_100()
+    owners_apps = steam_api.get_data(top100, 'owners', force_int=False)
+    owners_scaled, frac_labels = utils.get_scaled_data(owners_apps)
+
+    # set all in a dict
+    context = {
+        'apps': top100,
+        'fraction_labels': frac_labels
+    }
+
+    # convert to json
+    data = json.dumps(context)
+    # return the json to the view
+    return HttpResponse(data, content_type='application/json')
+
 # def fetch_binary_search_tree(request, filter_key, reversed):
 #
 #     # gather all apps

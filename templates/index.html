@@ -18,6 +18,9 @@
     <div id="charts" onclick="location.href = {% url 'stats' %}">
         Statistics
     </div>
+    <div id="top100" onclick="location.href = {% url 'top100' %}">
+        Top 100 Apps
+    </div>
     <h1>Sorting style: {{ checked_button }}</h1>
 
     <form id="form_filter" action="{% url 'filterData' %}" method="get">
@@ -228,7 +231,7 @@
                     clone.querySelector('.negative').innerHTML = dict_list[i]['negative']
                     clone.querySelector('.owners').innerHTML = dict_list[i]['owners']
                     clone.querySelector('.price').innerHTML = '$' + parseInt(dict_list[i]['price']) / 100
-                    clone.querySelector('.populariteit').innerHTML = "This game is one of the " + getFractionLabel(frac_labels, dict_list[i]['owners']) + '% most popular games'
+                    clone.querySelector('.populariteit').innerHTML = "This game is one of the top " + getFractionLabel(frac_labels, dict_list[i]['owners']) + '% most popular games'
 
                     {#listen to the click event (go to the details)#}
                     clone.addEventListener('click', (evt) => {
@@ -263,6 +266,7 @@
     });
 
     {#calculated the % of popularity#}
+
     function getFractionLabel(labels, owners) {
         var percentage = 0
         var ownersValue = parseInt(owners.split(' .. ')[0].replaceAll(',', ''))
@@ -278,6 +282,7 @@
     }
 
     {#reverse list when icon is clicked#}
+
     function reverseList() {
         document.getElementById('hidden_reverse_status').value = '{{ reverse }}'.toLowerCase() !== 'true';
         document.getElementById('form_filter').submit();

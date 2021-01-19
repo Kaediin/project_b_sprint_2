@@ -28,6 +28,13 @@ def fetch_details_steamspy(appid):
     response = requests.request("GET", url).json()
     return dict(response)
 
+# get top 100 games
+def get_top_100():
+    url = 'https://steamspy.com/api.php?request=top100in2weeks'
+    response = requests.request("GET", url).json()
+    resp = response.values()
+    return list(resp)
+
 # return available keys to filter through
 def getKeys():
     return [
